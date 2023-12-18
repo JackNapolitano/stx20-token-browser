@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STX20 Token Information</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+</head>
+<body>
+
+<label for="hideMintedOut">Hide Minted-Out Tokens</label>
+<input type="checkbox" id="hideMintedOut">
+<br>
+<br>
+
+<input type="text" id="tickerSearch" placeholder="Search by Ticker">
+
+<table id="tokenTable" class="display">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Total Supply</th>
+            <th>Mint Limit</th>
+            <th>Creation Date</th>
+            <th>Supply Left to Mint</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#tokenTable').DataTable({
+            paging: false,
+            ordering: true,
+            searching: true,
+            ajax: {
+                url: 'https://api.stx20.com/api/v1/token?limit=10000',
+                dataSrc: 'data'
+            },
+            columns: [
+                { data: 'ticker' },
+                { data: 'totalSupply' },
+                { data: 'mintLimit' },
+                { data: 'creationDate' },
+                { data: 'supplyLeftToMint' }
+            ]
+        });
+
+        // Checkbox event handler
+        $('#hideMintedOut').change(function() {
+            var hideMintedOut = $(this).prop('checked');
+
+            // Filter out minted-out tokens
+            table.column(4)
+            .search(hideMintedOut ? '^[1-9][0-9]*$' : '', true, false).draw();
+        });
+
+        // Ticker search event handler
+        $('#tickerSearch').on('input', function() {
+            var tickerSearch = $(this).val();
+
+            // Filter by ticker
+            table.column(0).search(tickerSearch).draw();
+        });
+    });
+</script>
+
+</body>
+</html>
